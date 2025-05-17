@@ -6,11 +6,9 @@ const productoController = require('../controllers/producto.controller');
 
 // Configurar almacenamiento de imágenes
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, './uploads'),
-    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-  });
-
-  
+  destination: (req, file, cb) => cb(null, './uploads'),
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+});
 
 const upload = multer({ storage: storage });
 

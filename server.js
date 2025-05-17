@@ -6,8 +6,6 @@ const productoRoutes = require('./routes/producto.routes');
 
 app.use(cors());
 app.use(express.json());
-
-
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Acceso libre a imágenes
 
 app.use('/api/productos', productoRoutes);

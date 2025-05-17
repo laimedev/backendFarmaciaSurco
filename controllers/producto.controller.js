@@ -35,44 +35,51 @@ exports.obtenerPorId = (req, res) => {
       res.json(data[0]);
     });
   };
- 
-
-
-  exports.editarFotoProducto = (req, res) => {
-    const codigo = req.body.codigo;
+  
+  // Actualizar producto y subir imagen
+  exports.editarProducto = (req, res) => {
+    const datos = req.body;
+    const codigo = datos.codigo;
     const archivo = req.files?.foto;
   
-    if (!codigo || !archivo) {
-      return res.status(400).json({ message: 'Código e imagen son requeridos' });
-    }
-  
-    const extension = '.jpg';
+    // Ruta destino
     const uploadsDir = path.join(__dirname, '../uploads');
+    // const extension = archivo ? path.extname(archivo.name) : '';
+    const extension = '.jpg';
     const nombreArchivo = `${codigo}${extension}`;
     const rutaFinal = path.join(uploadsDir, nombreArchivo);
   
-    // Eliminar si ya hay una imagen anterior
-    if (fs.existsSync(rutaFinal)) {
-      fs.unlinkSync(rutaFinal);
-    }
-  
-    // Mover imagen nueva
-    archivo.mv(rutaFinal, (err) => {
-      if (err) {
-        console.error('Error al guardar imagen:', err);
-        return res.status(500).json({ message: 'Error al subir imagen' });
+    if (archivo) {
+      // Eliminar si ya existe imagen anterior con mismo nombre
+      if (fs.existsSync(rutaFinal)) {
+        fs.unlinkSync(rutaFinal);
       }
   
-      const rutaFoto = `/uploads/${nombreArchivo}`;
-  
-      // Actualizar solo el campo `foto`
-      Producto.actualizarSoloFoto(codigo, rutaFoto, (err2) => {
-        if (err2) {
-          console.error('Error SQL al guardar foto:', err2);
-          return res.status(500).json({ message: 'Error al guardar ruta de foto' });
+      // Mover nueva imagen
+      archivo.mv(rutaFinal, (err) => {
+        if (err) {
+          console.error('Error al subir imagen:', err);
+          return res.status(500).json({ message: 'Error al subir imagen' });
         }
   
-        res.json({ success: true, message: 'Foto actualizada correctamente', ruta: rutaFoto });
+        datos.foto = `/uploads/${nombreArchivo}`;
+        actualizarProducto(datos, res);
       });
-    });
+    } else {
+      // Sin imagen nueva
+      actualizarProducto(datos, res);
+    }
   };
+  
+  // función auxiliar
+  function actualizarProducto(datos, res) {
+    Producto.updateProducto(datos, (err) => {
+      if (err) {
+        console.error('Error SQL:', err);
+        return res.status(500).json({ message: 'Error al actualizar producto' });
+      }
+  
+      res.json({ success: true, message: 'Producto actualizado correctamente' });
+    });
+  }
+  

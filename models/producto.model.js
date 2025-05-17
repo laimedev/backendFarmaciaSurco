@@ -26,34 +26,21 @@ Producto.countFiltered = (search, callback) => {
 
 
 Producto.getById = (codigo, callback) => {
-    db.query('SELECT * FROM Productos WHERE codigo = ?', [codigo], callback);
-  };
-  
+  db.query('SELECT * FROM Productos WHERE codigo = ?', [codigo], callback);
+};
 
-  Producto.actualizarSoloFoto = (codigo, rutaFoto, callback) => {
-    const query = `
-      UPDATE Productos SET foto = ? WHERE codigo = ?
-    `;
-    db.query(query, [rutaFoto, codigo], callback);
-  };
+Producto.updateProducto = (datos, callback) => {
+  const { codigo, descripcion, cod_labo, nombre_marca, pre_neto, prec_caja, pre_frac, stock_cja, stock_unid, foto } = datos;
 
+  const query = `
+    UPDATE Productos SET 
+      descripcion = ?, cod_labo = ?, nombre_marca = ?,
+      pre_neto = ?, prec_caja = ?, pre_frac = ?, 
+      stock_cja = ?, stock_unid = ?, foto = ?
+    WHERE codigo = ?
+  `;
 
-  
-  Producto.updateProducto = (datos, callback) => {
-    const { codigo, descripcion, cod_labo, nombre_marca, pre_neto, prec_caja, pre_frac, stock_cja, stock_unid, foto } = datos;
-  
-    const query = `
-      UPDATE Productos SET 
-        descripcion = ?, cod_labo = ?, nombre_marca = ?,
-        pre_neto = ?, prec_caja = ?, pre_frac = ?, 
-        stock_cja = ?, stock_unid = ?, foto = ?
-      WHERE codigo = ?
-    `;
-  
-    db.query(query, [descripcion, cod_labo, nombre_marca, pre_neto, prec_caja, pre_frac, stock_cja, stock_unid, foto, codigo], callback);
-  };
-
-
-
+  db.query(query, [descripcion, cod_labo, nombre_marca, pre_neto, prec_caja, pre_frac, stock_cja, stock_unid, foto, codigo], callback);
+};
 
 module.exports = Producto;
