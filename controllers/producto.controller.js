@@ -24,6 +24,8 @@ exports.listarProductos = (req, res) => {
 };
 
 
+
+
 // Obtener producto por ID
 exports.obtenerPorId = (req, res) => {
     const codigo = req.params.codigo;
@@ -37,19 +39,47 @@ exports.obtenerPorId = (req, res) => {
   // Actualizar producto y subir imagen
   exports.editarProducto = (req, res) => {
     const datos = req.body;
-    const archivo = req.file;
+    const codigo = datos.codigo;
+    const archivo = req.files?.foto;
+  
+    // Ruta destino
+    const uploadsDir = path.join(__dirname, '../uploads');
+    // const extension = archivo ? path.extname(archivo.name) : '';
+    const extension = '.jpg';
+    const nombreArchivo = `${codigo}${extension}`;
+    const rutaFinal = path.join(uploadsDir, nombreArchivo);
   
     if (archivo) {
-      datos.foto = `/uploads/${archivo.filename}`;
-    } else {
-      datos.foto = req.body.foto || null;
-    }
+      // Eliminar si ya existe imagen anterior con mismo nombre
+      if (fs.existsSync(rutaFinal)) {
+        fs.unlinkSync(rutaFinal);
+      }
   
+      // Mover nueva imagen
+      archivo.mv(rutaFinal, (err) => {
+        if (err) {
+          console.error('Error al subir imagen:', err);
+          return res.status(500).json({ message: 'Error al subir imagen' });
+        }
+  
+        datos.foto = `/uploads/${nombreArchivo}`;
+        actualizarProducto(datos, res);
+      });
+    } else {
+      // Sin imagen nueva
+      actualizarProducto(datos, res);
+    }
+  };
+  
+  // función auxiliar
+  function actualizarProducto(datos, res) {
     Producto.updateProducto(datos, (err) => {
-      if (err) return res.status(500).json({ message: 'Error al actualizar producto' });
+      if (err) {
+        console.error('Error SQL:', err);
+        return res.status(500).json({ message: 'Error al actualizar producto' });
+      }
+  
       res.json({ success: true, message: 'Producto actualizado correctamente' });
     });
-  };
-
+  }
   
-
