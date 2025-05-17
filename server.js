@@ -1,10 +1,9 @@
 const express = require('express');
 const cors = require('cors');
-const fileUpload = require('express-fileupload');
 const app = express();
 const path = require('path');
 const productoRoutes = require('./routes/producto.routes');
-app.use(fileUpload());
+
 app.use(cors());
 app.use(express.json());
 
